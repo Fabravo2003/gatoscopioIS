@@ -12,8 +12,8 @@ La investigación contempla un **análisis molecular y estadístico** de las mue
 
 ## Problema
 
-El principal desafío identificado es la **trazabilidad de los datos médicos**.  
-Actualmente, la gestión de la información clínica y molecular en estudios de este tipo enfrenta varios riesgos:
+El principal desafío identificado es la **trazabilidad de los datos médicos**.
+Actualmente, la gestión de la información se lleva a cabo en papel/excel de forma totalmente manual, esto lleva a enfrentarse con varios problemas entre los que tenemos:
 
 - Dificultad para mantener un registro ordenado y actualizado de los datos de pacientes y controles.  
 - Complejidad para garantizar que la información esté **anonimizada** en todo momento, preservando la identidad de los participantes.  
