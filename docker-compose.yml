@@ -1,0 +1,62 @@
+# TODO: Update so the backend uses a docker netowrk to talk to the db
+# maybe expose using traefik?
+services:
+  frontend:
+    build:
+      context: ./frontend
+
+    ports:
+      - "8000:8000"
+
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          # Ignore virtual environment if once is created
+          ignore:
+            - .venv/
+            - ./frontend/.venv/
+
+        - action: rebuild
+          path: ./frontend/uv.lock
+
+  backend:
+    build:
+      context: ./api
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/demo_db
+      SPRING_DATASOURCE_USERNAME: demo
+      SPRING_DATASOURCE_PASSWORD: demopassword
+
+    # Spring Boot supports hot swapping
+    # docs: https://docs.spring.io/spring-boot/how-to/hotswapping.html
+    # TODO: Update this to the proper springboot path
+    develop:
+      watch:
+        - action: sync
+          path: ./api
+          target: /app
+
+        - action: rebuild
+          path: ./
+  
+  db:
+    image: docker.io/mysql
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: y
+      MYSQL_DATABASE: demo_db
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: demopassword
+    ports:
+      - 3306:3306
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:
+

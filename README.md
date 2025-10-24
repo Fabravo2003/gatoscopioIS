@@ -9,8 +9,22 @@ El objetivo es facilitar la **captura y organización** de manera eficiente, con
 
 ## 🚀 Estado del proyecto
 
-Actualmente este repositorio contiene principalmente **documentación** sobre la visión, diseño y planificación del sistema.  
-El desarrollo del software comenzará una vez se definan claramente los flujos de datos y requerimientos técnicos.
+En desarrollo ;)
+
+## Quickstart
+
+El proyecto esta dockerizado por lo que para levantarlo es suficiente con usar el docker compose
+
+```bash
+docker compose up
+```
+
+Tambien tiene un modo desarollo donde tenemos para probar los cambios mientras se desarrola [más info acá](https://docs.docker.com/compose/file-watch/)
+
+```bash
+# Lanzar modo desarollo
+docker compose up --watch 
+```
 
 ---
 
@@ -19,19 +33,19 @@ El desarrollo del software comenzará una vez se definan claramente los flujos d
 La documentación del proyecto se encuentra en la carpeta [`/docs`](./docs).  
 Allí podrás encontrar:
 
-- Descripción general del proyecto [aqui](./docs/descripción_del_problema.md) 
+- Descripción general del proyecto [aqui](./docs/descripción_del_problema.md)
 - Modelo Entidad Relación
 - Casos de uso  
 - Requerimientos funcionales y no funcionales  
 - Propuestas de interfaz  
-- Objetivos 
+- Objetivos
 
 ## 👥 Autores
 
 Este proyecto es realizo bajo el contexto de la asignatura *Ingeniería de Software* en la UBB
 Integrantes:
+
 - Fabián Bravo
-- Beatriz Durán 
+- Beatriz Durán
 - Gonzalo Inostroza
 - Alejandro Ortiz
-
