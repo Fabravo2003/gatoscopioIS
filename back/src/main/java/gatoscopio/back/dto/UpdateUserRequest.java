@@ -1,7 +1,11 @@
 package gatoscopio.back.dto;
 
+import jakarta.validation.constraints.Email;
+
 public class UpdateUserRequest {
     private String nombre;   // opcional
+
+    @Email
     private String correo;   // opcional
 
     public String getNombre() { return nombre; }
@@ -9,4 +13,3 @@ public class UpdateUserRequest {
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
 }
-

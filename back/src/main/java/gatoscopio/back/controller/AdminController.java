@@ -40,7 +40,7 @@ public class AdminController {
 
     @Operation(summary = "Asignar conjunto de roles a un usuario (reemplaza)")
     @PutMapping("/usuarios/{id}/roles")
-    public ResponseEntity<?> setUserRoles(@PathVariable Integer id, @RequestBody RolesUpdateRequest req) {
+    public ResponseEntity<?> setUserRoles(@PathVariable Integer id, @RequestBody @jakarta.validation.Valid RolesUpdateRequest req) {
         try {
             if (req == null || req.getRoles() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", "roles requeridos"));
@@ -61,7 +61,7 @@ public class AdminController {
 
     @Operation(summary = "Crear usuario con roles iniciales")
     @PostMapping("/usuarios")
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest req) {
+    public ResponseEntity<?> createUser(@RequestBody @jakarta.validation.Valid CreateUserRequest req) {
         try {
             var u = service.createUser(req);
             java.util.Map<String,Object> body = new java.util.LinkedHashMap<>();
@@ -81,7 +81,7 @@ public class AdminController {
 
     @Operation(summary = "Actualizar datos básicos del usuario (nombre/correo)")
     @PutMapping("/usuarios/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest req) {
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody @jakarta.validation.Valid UpdateUserRequest req) {
         try {
             var u = service.updateUser(id, req);
             java.util.Map<String,Object> body = new java.util.LinkedHashMap<>();
@@ -101,7 +101,7 @@ public class AdminController {
 
     @Operation(summary = "Cambiar contraseña del usuario")
     @PutMapping("/usuarios/{id}/password")
-    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody UpdatePasswordRequest req) {
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody @jakarta.validation.Valid UpdatePasswordRequest req) {
         try {
             service.changePassword(id, req);
             return ResponseEntity.noContent().build();

@@ -1,11 +1,22 @@
 package gatoscopio.back.dto;
 
 import java.util.Set;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class CreateUserRequest {
+    @NotBlank
     private String nombre;
+
+    @NotBlank
+    @Email
     private String correo;
+
+    @NotBlank
+    @Size(min = 8)
     private String contrasena;
+
     private Set<String> roles; // opcional
 
     public String getNombre() { return nombre; }
@@ -17,4 +28,3 @@ public class CreateUserRequest {
     public Set<String> getRoles() { return roles; }
     public void setRoles(Set<String> roles) { this.roles = roles; }
 }
-
