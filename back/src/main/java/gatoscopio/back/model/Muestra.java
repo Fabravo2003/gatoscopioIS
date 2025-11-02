@@ -70,4 +70,11 @@ public class Muestra {
     public void setCantidadDonada(BigDecimal cantidadDonada) {
         this.cantidadDonada = cantidadDonada;
     }
+
+    @PrePersist
+    protected void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
 }
