@@ -7,7 +7,7 @@ import gatoscopio.back.model.Usuario;
 
 public interface ServiceAdmin {
    
-    void createUser(Usuario usuario);
+    Usuario createUser(Usuario usuario);
     void modifyUser(Usuario usuario);
     void deleteUser(Usuario usuario);
     List<Usuario> getUsers();
@@ -19,5 +19,8 @@ public interface ServiceAdmin {
 
     // Usuarios (paginado con roles)
     org.springframework.data.domain.Page<gatoscopio.back.dto.UserSummary> pageUsers(org.springframework.data.domain.Pageable pageable);
+
+    // Crear usuario (DTO)
+    Usuario createUser(gatoscopio.back.dto.CreateUserRequest req);
 
 }

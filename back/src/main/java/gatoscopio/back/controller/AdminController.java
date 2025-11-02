@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import gatoscopio.back.dto.RolesUpdateRequest;
+import gatoscopio.back.dto.CreateUserRequest;
 import gatoscopio.back.service.ServiceAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,6 +52,26 @@ public class AdminController {
             return ResponseEntity.ok(body);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Crear usuario con roles iniciales")
+    @PostMapping("/usuarios")
+    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest req) {
+        try {
+            var u = service.createUser(req);
+            java.util.Map<String,Object> body = new java.util.LinkedHashMap<>();
+            body.put("id", u.getId());
+            body.put("nombre", u.getNombre());
+            body.put("correo", u.getCorreo());
+            body.put("roles", service.getUserRoles(u.getId()));
+            return ResponseEntity.status(HttpStatus.CREATED).body(body);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(err("conflict", e.getMessage()));
         } catch (java.util.NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
         }

@@ -10,7 +10,9 @@ import gatoscopio.back.repository.UsuarioRepository;
 import gatoscopio.back.repository.RoleRepository;
 import gatoscopio.back.model.Role;
 import gatoscopio.back.dto.UserSummary;
+import gatoscopio.back.dto.CreateUserRequest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import gatoscopio.back.service.ServiceAdmin;
 
 @Service
@@ -24,8 +26,15 @@ public class ServiceAdminImpl implements ServiceAdmin {
         this.roleRepository = roleRepository;
     }
 
-    public void createUser(Usuario usuario) {
-        //TODO
+    @Override
+    public Usuario createUser(Usuario usuario) {
+        if (usuario == null) throw new IllegalArgumentException("usuario requerido");
+        if (usuario.getCorreo() == null || usuario.getCorreo().isBlank()) throw new IllegalArgumentException("correo es requerido");
+        if (repository.existsByCorreoIgnoreCase(usuario.getCorreo())) throw new IllegalStateException("correo ya existe");
+        if (usuario.getContrasena() == null || usuario.getContrasena().length() < 8) throw new IllegalArgumentException("contrasena debe tener al menos 8 caracteres");
+        var encoder = new BCryptPasswordEncoder();
+        usuario.setContrasena(encoder.encode(usuario.getContrasena()));
+        return repository.save(usuario);
     }
 
     public void modifyUser(Usuario usuario) {
@@ -66,6 +75,36 @@ public class ServiceAdminImpl implements ServiceAdmin {
             Role role = roleRepository.findById(key)
                 .orElseThrow(() -> new java.util.NoSuchElementException("rol no existe: " + key));
             nuevo.add(role);
+        }
+        u.setRoles(nuevo);
+        return repository.save(u);
+    }
+
+    @Override
+    public Usuario createUser(CreateUserRequest req) {
+        if (req == null) throw new IllegalArgumentException("body requerido");
+        if (req.getNombre() == null || req.getNombre().isBlank()) throw new IllegalArgumentException("nombre es requerido");
+        if (req.getCorreo() == null || req.getCorreo().isBlank()) throw new IllegalArgumentException("correo es requerido");
+        if (!req.getCorreo().contains("@")) throw new IllegalArgumentException("correo inválido");
+        if (repository.existsByCorreoIgnoreCase(req.getCorreo())) throw new IllegalStateException("correo ya existe");
+        if (req.getContrasena() == null || req.getContrasena().length() < 8) throw new IllegalArgumentException("contrasena debe tener al menos 8 caracteres");
+
+        Usuario u = new Usuario();
+        u.setNombre(req.getNombre());
+        u.setCorreo(req.getCorreo());
+        var encoder = new BCryptPasswordEncoder();
+        u.setContrasena(encoder.encode(req.getContrasena()));
+
+        // Roles opcionales
+        java.util.Set<Role> nuevo = new java.util.LinkedHashSet<>();
+        if (req.getRoles() != null) {
+            for (String r : req.getRoles()) {
+                if (r == null || r.trim().isEmpty()) throw new IllegalArgumentException("rol vacío");
+                String key = r.trim();
+                Role role = roleRepository.findById(key)
+                        .orElseThrow(() -> new java.util.NoSuchElementException("rol no existe: " + key));
+                nuevo.add(role);
+            }
         }
         u.setRoles(nuevo);
         return repository.save(u);
