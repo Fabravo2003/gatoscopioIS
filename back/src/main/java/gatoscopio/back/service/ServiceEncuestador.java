@@ -1,4 +1,10 @@
 package gatoscopio.back.service;
 
-public class ServiceEncuestador {
+import gatoscopio.back.model.Paciente;
+
+public interface ServiceEncuestador {
+
+    void createPaciente(Paciente paciente);
+    void createEncuesta();
+
 }

@@ -1,4 +1,7 @@
 package gatoscopio.back.service;
 
-public class ServiceInvestigador {
+public interface ServiceInvestigador {
+
+
+
 }

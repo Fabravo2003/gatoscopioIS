@@ -13,6 +13,7 @@ public class Usuario {
     private String nombre;
     private String correo;
     private String contrasena;
+    private String rol;
 
     // Getters y Setters
 
@@ -42,5 +43,13 @@ public class Usuario {
 
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
+    public void getRol(String rol) {
+        this.rol = rol;
     }
 }
