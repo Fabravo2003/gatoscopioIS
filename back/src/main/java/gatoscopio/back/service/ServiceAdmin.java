@@ -17,4 +17,7 @@ public interface ServiceAdmin {
     java.util.List<String> getUserRoles(Integer userId);
     Usuario setUserRoles(Integer userId, java.util.Set<String> roles);
 
+    // Usuarios (paginado con roles)
+    org.springframework.data.domain.Page<gatoscopio.back.dto.UserSummary> pageUsers(org.springframework.data.domain.Pageable pageable);
+
 }

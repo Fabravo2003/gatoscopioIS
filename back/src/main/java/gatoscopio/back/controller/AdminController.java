@@ -9,6 +9,8 @@ import gatoscopio.back.dto.RolesUpdateRequest;
 import gatoscopio.back.service.ServiceAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/api")
@@ -52,6 +54,12 @@ public class AdminController {
         } catch (java.util.NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
         }
+    }
+
+    @Operation(summary = "Listar usuarios (paginado) con sus roles")
+    @GetMapping("/usuarios")
+    public ResponseEntity<?> listUsers(@PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(service.pageUsers(pageable));
     }
 
     private static java.util.Map<String, Object> err(String code, String message) {

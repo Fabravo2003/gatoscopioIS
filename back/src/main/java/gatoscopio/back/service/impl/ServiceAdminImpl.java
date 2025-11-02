@@ -9,6 +9,8 @@ import gatoscopio.back.model.Usuario;
 import gatoscopio.back.repository.UsuarioRepository;
 import gatoscopio.back.repository.RoleRepository;
 import gatoscopio.back.model.Role;
+import gatoscopio.back.dto.UserSummary;
+import org.springframework.transaction.annotation.Transactional;
 import gatoscopio.back.service.ServiceAdmin;
 
 @Service
@@ -67,5 +69,17 @@ public class ServiceAdminImpl implements ServiceAdmin {
         }
         u.setRoles(nuevo);
         return repository.save(u);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<UserSummary> pageUsers(org.springframework.data.domain.Pageable pageable) {
+        var page = repository.findAll(pageable);
+        return page.map(u -> new UserSummary(
+                u.getId(),
+                u.getNombre(),
+                u.getCorreo(),
+                u.getRoles().stream().map(Role::getNombre).toList()
+        ));
     }
 }
