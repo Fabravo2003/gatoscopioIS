@@ -12,4 +12,9 @@ public interface ServiceAdmin {
     void deleteUser(Usuario usuario);
     List<Usuario> getUsers();
 
+    // Roles
+    java.util.List<String> listRoles();
+    java.util.List<String> getUserRoles(Integer userId);
+    Usuario setUserRoles(Integer userId, java.util.Set<String> roles);
+
 }

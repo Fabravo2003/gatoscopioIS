@@ -3,16 +3,24 @@ package gatoscopio.back.service.impl;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import gatoscopio.back.model.Usuario;
 import gatoscopio.back.repository.UsuarioRepository;
+import gatoscopio.back.repository.RoleRepository;
+import gatoscopio.back.model.Role;
 import gatoscopio.back.service.ServiceAdmin;
 
 @Service
 public class ServiceAdminImpl implements ServiceAdmin {
-     private UsuarioRepository repository;
+     private final UsuarioRepository repository;
+     private final RoleRepository roleRepository;
 
-    public ServiceAdminImpl(UsuarioRepository repository){this.repository = repository;}
+    @Autowired
+    public ServiceAdminImpl(UsuarioRepository repository, RoleRepository roleRepository){
+        this.repository = repository;
+        this.roleRepository = roleRepository;
+    }
 
     public void createUser(Usuario usuario) {
         //TODO
@@ -31,9 +39,33 @@ public class ServiceAdminImpl implements ServiceAdmin {
         return List.of();
     }
 
-    public Usuario changeRol(Usuario usuario, String rol) {
-        Usuario temp = repository.findById(usuario.getId()).orElseThrow();
-        temp.setRol(rol);
-        return repository.save(temp);
+    // ===== Roles =====
+    @Override
+    public java.util.List<String> listRoles() {
+        return roleRepository.findAll().stream().map(Role::getNombre).toList();
+    }
+
+    @Override
+    public java.util.List<String> getUserRoles(Integer userId) {
+        Usuario u = repository.findById(userId).orElseThrow(() -> new java.util.NoSuchElementException("usuario no existe"));
+        return u.getRoles().stream().map(Role::getNombre).toList();
+    }
+
+    @Override
+    public Usuario setUserRoles(Integer userId, java.util.Set<String> roles) {
+        if (roles == null) throw new IllegalArgumentException("roles requeridos");
+        Usuario u = repository.findById(userId).orElseThrow(() -> new java.util.NoSuchElementException("usuario no existe"));
+        java.util.Set<Role> nuevo = new java.util.LinkedHashSet<>();
+        for (String r : roles) {
+            if (r == null || r.trim().isEmpty()) {
+                throw new IllegalArgumentException("rol vacío");
+            }
+            String key = r.trim();
+            Role role = roleRepository.findById(key)
+                .orElseThrow(() -> new java.util.NoSuchElementException("rol no existe: " + key));
+            nuevo.add(role);
+        }
+        u.setRoles(nuevo);
+        return repository.save(u);
     }
 }
