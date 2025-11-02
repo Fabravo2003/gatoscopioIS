@@ -17,6 +17,7 @@ Como administrador, gestionar roles de usuario para asignar permisos.
 - `PUT /api/usuarios/{id}/roles` → 200 usuario con roles
   - Request: `{ "roles": ["admin","encuestador"] }`
   - Errores: 400 body inválido; 404 usuario/rol no existe
+ - `GET /api/usuarios?page=0&size=20&sort=id,asc` → 200 página de `UserSummary` con roles
 
 ## Validaciones
 - Usuario debe existir.
@@ -51,4 +52,7 @@ curl -X PUT http://localhost:8080/api/usuarios/1/roles \
 ## Notas
 - Semillas: `db/init/002_seed.sql` ya incluye `roles` y usuarios de prueba.
 - CORS y Swagger habilitados para facilitar pruebas desde front.
-
+4) Listar usuarios (paginado)
+```
+curl "http://localhost:8080/api/usuarios?page=0&size=10&sort=id,asc"
+```
