@@ -15,13 +15,17 @@ import org.springframework.data.web.PageableDefault;
 import gatoscopio.back.model.Paciente;
 import gatoscopio.back.model.Muestra;
 import gatoscopio.back.service.impl.ServiceEncuestadorImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Encuestador")
 public class EncuestadorController {
     @Autowired
     private ServiceEncuestadorImpl service;
 
+    @Operation(summary = "Crear paciente")
     @PostMapping("/pacientes")
     public ResponseEntity<?> crearPaciente(@RequestBody Paciente paciente) {
         try {
@@ -34,6 +38,7 @@ public class EncuestadorController {
         }
     }
 
+    @Operation(summary = "Obtener paciente por código")
     @GetMapping("/pacientes/{codigo}")
     public ResponseEntity<?> obtenerPaciente(@PathVariable String codigo) {
         try {
@@ -53,12 +58,14 @@ public class EncuestadorController {
         return m;
     }
 
+    @Operation(summary = "Listar pacientes paginados")
     @GetMapping("/pacientes")
     public ResponseEntity<?> listarPacientes(@PageableDefault(size = 20, sort = "codigo") Pageable pageable) {
         var page = service.listPacientes(pageable);
         return ResponseEntity.ok(page);
     }
 
+    @Operation(summary = "Crear muestra")
     @PostMapping("/muestras")
     public ResponseEntity<?> crearMuestra(@RequestBody Muestra muestra) {
         try {
@@ -75,6 +82,7 @@ public class EncuestadorController {
         }
     }
 
+    @Operation(summary = "Obtener muestra por código")
     @GetMapping("/muestras/{codigo}")
     public ResponseEntity<?> obtenerMuestra(@PathVariable String codigo) {
         try {
@@ -87,12 +95,14 @@ public class EncuestadorController {
         }
     }
 
+    @Operation(summary = "Listar muestras paginadas")
     @GetMapping("/muestras")
     public ResponseEntity<?> listarMuestras(@PageableDefault(size = 20, sort = "codigo") Pageable pageable) {
         var page = service.listMuestras(pageable);
         return ResponseEntity.ok(page);
     }
 
+    @Operation(summary = "Listar tipos de muestra")
     @GetMapping("/tipos-muestra")
     public ResponseEntity<?> listarTiposMuestra() {
         return ResponseEntity.ok(service.listTiposMuestra());

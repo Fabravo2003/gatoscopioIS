@@ -7,18 +7,23 @@ import org.springframework.web.bind.annotation.*;
 
 import gatoscopio.back.dto.RolesUpdateRequest;
 import gatoscopio.back.service.ServiceAdmin;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Roles")
 public class AdminController {
     @Autowired
     private ServiceAdmin service;
 
+    @Operation(summary = "Listar roles disponibles")
     @GetMapping("/roles")
     public ResponseEntity<?> listRoles() {
         return ResponseEntity.ok(service.listRoles());
     }
 
+    @Operation(summary = "Obtener roles de un usuario")
     @GetMapping("/usuarios/{id}/roles")
     public ResponseEntity<?> getUserRoles(@PathVariable Integer id) {
         try {
@@ -28,6 +33,7 @@ public class AdminController {
         }
     }
 
+    @Operation(summary = "Asignar conjunto de roles a un usuario (reemplaza)")
     @PutMapping("/usuarios/{id}/roles")
     public ResponseEntity<?> setUserRoles(@PathVariable Integer id, @RequestBody RolesUpdateRequest req) {
         try {
