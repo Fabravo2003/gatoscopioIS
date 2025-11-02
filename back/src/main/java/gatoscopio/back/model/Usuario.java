@@ -1,6 +1,8 @@
 package gatoscopio.back.model;
 
 import jakarta.persistence.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "usuarios")
@@ -14,6 +16,14 @@ public class Usuario {
     private String correo;
     private String contrasena;
     private String rol;
+
+    @ManyToMany
+    @JoinTable(
+        name = "usuarios_roles",
+        joinColumns = @JoinColumn(name = "usuario_id"),
+        inverseJoinColumns = @JoinColumn(name = "rol_nombre")
+    )
+    private Set<Role> roles = new LinkedHashSet<>();
 
     // Getters y Setters
 
@@ -51,5 +61,13 @@ public class Usuario {
 
     public String getRol() {
         return this.rol;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }
