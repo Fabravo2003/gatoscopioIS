@@ -15,7 +15,8 @@ public class Usuario {
     private String nombre;
     private String correo;
     private String contrasena;
-    private String rol;
+    @Transient
+    private String rol; // Deprecated: usar ManyToMany roles
 
     @ManyToMany
     @JoinTable(
