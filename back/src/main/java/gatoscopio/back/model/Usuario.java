@@ -49,7 +49,7 @@ public class Usuario {
         this.rol = rol;
     }
 
-    public void getRol(String rol) {
-        this.rol = rol;
+    public String getRol() {
+        return this.rol;
     }
 }
