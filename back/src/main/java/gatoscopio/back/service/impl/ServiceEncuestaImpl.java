@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.sql.Timestamp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,26 @@ public class ServiceEncuestaImpl implements ServiceEncuesta {
             respuestas.add(ir);
         }
         resp.setRespuestas(respuestas);
+        // ultimo editor (si existe)
+        var rows = em.createNativeQuery(
+                "select u.id, u.nombre, u.correo, ue.fecha_hora_modificacion " +
+                "from usuarios_encuestas ue join usuarios u on u.id = ue.usuario_id " +
+                "where ue.encuesta_id = :eid order by ue.fecha_hora_modificacion desc limit 1")
+                .setParameter("eid", encuestaId)
+                .getResultList();
+        if (!rows.isEmpty()) {
+            Object[] r = (Object[]) rows.get(0);
+            var ed = new EncuestaDetalleResponse.UltimoEditor();
+            if (r[0] != null) ed.setId(((Number) r[0]).intValue());
+            ed.setNombre((String) r[1]);
+            ed.setCorreo((String) r[2]);
+            if (r[3] instanceof Timestamp ts) {
+                ed.setFechaHoraModificacion(ts.toLocalDateTime());
+            } else if (r[3] instanceof java.time.LocalDateTime ldt) {
+                ed.setFechaHoraModificacion(ldt);
+            }
+            resp.setUltimoEditor(ed);
+        }
         return resp;
     }
 

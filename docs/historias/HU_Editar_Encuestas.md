@@ -6,7 +6,7 @@ Estado: Completada (backend-only)
 Como administrador, editar encuestas incompletas para corregir errores.
 
 ## Endpoints
-- `GET /api/encuestas/{id}` → 200 detalle con respuestas (incluye metadatos de pregunta)
+- `GET /api/encuestas/{id}` → 200 detalle con respuestas (incluye metadatos de pregunta y `ultimoEditor` si existe)
 - `PUT /api/encuestas/{id}/respuestas` → 200 upsert de respuestas
   - Body: `[{ "preguntaId": 1, "valor": "34" }, ...]`
   - Reglas: solo si `estado != 'Completo'`; valida pregunta, tipo_dato y valores válidos (si existen).
