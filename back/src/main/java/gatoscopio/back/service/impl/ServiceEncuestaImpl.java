@@ -21,6 +21,9 @@ import gatoscopio.back.repository.PreguntaRepository;
 import gatoscopio.back.repository.RespuestaRepository;
 import gatoscopio.back.repository.ValorValidoPreguntaRepository;
 import gatoscopio.back.service.ServiceEncuesta;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import gatoscopio.back.repository.UsuarioRepository;
 
 @Service
 public class ServiceEncuestaImpl implements ServiceEncuesta {
@@ -29,6 +32,8 @@ public class ServiceEncuestaImpl implements ServiceEncuesta {
     @Autowired private RespuestaRepository respuestaRepository;
     @Autowired private PreguntaRepository preguntaRepository;
     @Autowired private ValorValidoPreguntaRepository valorValidoRepository;
+    @PersistenceContext private EntityManager em;
+    @Autowired private UsuarioRepository usuarioRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -42,7 +47,15 @@ public class ServiceEncuestaImpl implements ServiceEncuesta {
         resp.setCreatedAt(e.getCreatedAt());
         var respuestas = new ArrayList<EncuestaDetalleResponse.ItemRespuesta>();
         for (Respuesta r : respuestaRepository.findByEncuestaId(encuestaId)) {
-            respuestas.add(new EncuestaDetalleResponse.ItemRespuesta(r.getPreguntaId(), r.getValor()));
+            EncuestaDetalleResponse.ItemRespuesta ir = new EncuestaDetalleResponse.ItemRespuesta(r.getPreguntaId(), r.getValor());
+            preguntaRepository.findById(r.getPreguntaId()).ifPresent(p -> {
+                ir.setNombreVariable(p.getNombreVariable());
+                ir.setEnunciado(p.getEnunciado());
+                ir.setTipoDato(p.getTipoDato());
+                var vals = valorValidoRepository.findByPreguntaId(p.getId()).stream().map(ValorValidoPregunta::getValor).toList();
+                ir.setValoresValidos(vals);
+            });
+            respuestas.add(ir);
         }
         resp.setRespuestas(respuestas);
         return resp;
@@ -50,7 +63,7 @@ public class ServiceEncuestaImpl implements ServiceEncuesta {
 
     @Override
     @Transactional
-    public int upsertRespuestas(Integer encuestaId, List<RespuestaUpsertRequest> items) {
+    public int upsertRespuestas(Integer encuestaId, List<RespuestaUpsertRequest> items, Integer userId) {
         if (items == null || items.isEmpty()) throw new IllegalArgumentException("lista de respuestas requerida");
         Encuesta e = encuestaRepository.findById(encuestaId)
                 .orElseThrow(() -> new java.util.NoSuchElementException("encuesta no existe"));
@@ -59,6 +72,9 @@ public class ServiceEncuestaImpl implements ServiceEncuesta {
         }
 
         int updated = 0;
+        if (userId != null && !usuarioRepository.existsById(userId)) {
+            throw new java.util.NoSuchElementException("usuario no existe");
+        }
         for (RespuestaUpsertRequest it : items) {
             Integer pid = it.getPreguntaId();
             String valor = it.getValor();
@@ -102,17 +118,35 @@ public class ServiceEncuestaImpl implements ServiceEncuesta {
             respuestaRepository.save(r);
             updated++;
         }
+        // Auditoría opcional
+        if (userId != null) touchAudit(encuestaId, userId);
         return updated;
     }
 
     @Override
     @Transactional
-    public void updateEstado(Integer encuestaId, String estado) {
+    public void updateEstado(Integer encuestaId, String estado, Integer userId) {
         if (estado == null || estado.isBlank()) throw new IllegalArgumentException("estado requerido");
+        if (userId != null && !usuarioRepository.existsById(userId)) {
+            throw new java.util.NoSuchElementException("usuario no existe");
+        }
         Encuesta e = encuestaRepository.findById(encuestaId)
                 .orElseThrow(() -> new java.util.NoSuchElementException("encuesta no existe"));
         e.setEstado(estado.trim());
         encuestaRepository.save(e);
+        if (userId != null) touchAudit(encuestaId, userId);
+    }
+
+    private void touchAudit(Integer encuestaId, Integer userId) {
+        em.createNativeQuery("insert into usuarios_encuestas(usuario_id, encuesta_id, fecha_hora_modificacion) values (:uid,:eid, now()) on conflict (usuario_id, encuesta_id) do update set fecha_hora_modificacion = excluded.fecha_hora_modificacion")
+                .setParameter("uid", userId)
+                .setParameter("eid", encuestaId)
+                .executeUpdate();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<Encuesta> list(String estado, String pacienteCodigo, org.springframework.data.domain.Pageable pageable) {
+        return encuestaRepository.findAllFiltered(estado, pacienteCodigo, pageable);
     }
 }
-
