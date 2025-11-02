@@ -11,4 +11,4 @@ Este directorio reúne la documentación técnica de las historias de usuario im
 
 Listado:
 - HU_Registrar_Paciente.md
-
+- HU_Registrar_Muestra.md
