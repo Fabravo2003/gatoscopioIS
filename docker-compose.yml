@@ -60,6 +60,7 @@ services:
       - 5432:5432
     volumes:
       - dbdata:/var/lib/postgresql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
 
     healthcheck:
       test: ["CMD-SHELL", "PGPASSWORD=demopassword psql -h localhost -U demo -d demo_db -c 'SELECT 1'"]
@@ -69,4 +70,3 @@ services:
 
 volumes:
   dbdata: 
-
