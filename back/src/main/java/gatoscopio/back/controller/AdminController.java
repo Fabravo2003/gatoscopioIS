@@ -9,6 +9,7 @@ import gatoscopio.back.dto.RolesUpdateRequest;
 import gatoscopio.back.dto.CreateUserRequest;
 import gatoscopio.back.dto.UpdateUserRequest;
 import gatoscopio.back.dto.UpdatePasswordRequest;
+import gatoscopio.back.dto.CreateRoleRequest;
 import gatoscopio.back.service.ServiceAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +27,34 @@ public class AdminController {
     @GetMapping("/roles")
     public ResponseEntity<?> listRoles() {
         return ResponseEntity.ok(service.listRoles());
+    }
+
+    @Operation(summary = "Crear nuevo rol")
+    @PostMapping("/roles")
+    public ResponseEntity<?> createRole(@RequestBody @jakarta.validation.Valid CreateRoleRequest req) {
+        try {
+            var r = service.createRole(req.getNombre());
+            return ResponseEntity.status(HttpStatus.CREATED).body(java.util.Map.of("nombre", r.getNombre()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(err("conflict", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Eliminar rol (si no está asignado)")
+    @DeleteMapping("/roles/{nombre}")
+    public ResponseEntity<?> deleteRole(@PathVariable String nombre) {
+        try {
+            service.deleteRole(nombre);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(err("conflict", e.getMessage()));
+        }
     }
 
     @Operation(summary = "Obtener roles de un usuario")
@@ -129,6 +158,18 @@ public class AdminController {
     @GetMapping("/usuarios")
     public ResponseEntity<?> listUsers(@PageableDefault(size = 20, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(service.pageUsers(pageable));
+    }
+
+    @Operation(summary = "Listar usuarios por rol (paginado)")
+    @GetMapping("/roles/{nombre}/usuarios")
+    public ResponseEntity<?> listUsersByRole(@PathVariable String nombre, @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        try {
+            return ResponseEntity.ok(service.usersByRole(nombre, pageable));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
+        }
     }
 
     private static java.util.Map<String, Object> err(String code, String message) {

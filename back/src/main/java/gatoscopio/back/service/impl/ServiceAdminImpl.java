@@ -160,4 +160,38 @@ public class ServiceAdminImpl implements ServiceAdmin {
                 u.getRoles().stream().map(Role::getNombre).toList()
         ));
     }
+
+    @Override
+    public Role createRole(String nombre) {
+        if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("nombre requerido");
+        String key = nombre.trim();
+        if (!key.matches("^[a-zA-Z0-9_-]{3,32}$")) throw new IllegalArgumentException("nombre debe ser alfanumérico (3-32)");
+        if (roleRepository.existsByNombreIgnoreCase(key)) throw new IllegalStateException("rol ya existe");
+        Role r = new Role(key.toLowerCase());
+        return roleRepository.save(r);
+    }
+
+    @Override
+    public void deleteRole(String nombre) {
+        if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("nombre requerido");
+        String key = nombre.trim();
+        Role r = roleRepository.findById(key).orElseGet(() -> {
+            // intentar case-insensitive
+            String lower = key.toLowerCase();
+            return roleRepository.findById(lower).orElse(null);
+        });
+        if (r == null) throw new java.util.NoSuchElementException("rol no existe");
+        long inUse = repository.countByRoles_NombreIgnoreCase(r.getNombre());
+        if (inUse > 0) throw new IllegalStateException("no se puede eliminar; rol asignado a " + inUse + " usuario(s)");
+        roleRepository.delete(r);
+    }
+
+    @Override
+    public org.springframework.data.domain.Page<UserSummary> usersByRole(String nombre, org.springframework.data.domain.Pageable pageable) {
+        if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("nombre requerido");
+        String key = nombre.trim();
+        if (!roleRepository.existsByNombreIgnoreCase(key)) throw new java.util.NoSuchElementException("rol no existe");
+        return repository.findByRoles_NombreIgnoreCase(key, pageable)
+                .map(u -> new UserSummary(u.getId(), u.getNombre(), u.getCorreo(), u.getRoles().stream().map(Role::getNombre).toList()));
+    }
 }

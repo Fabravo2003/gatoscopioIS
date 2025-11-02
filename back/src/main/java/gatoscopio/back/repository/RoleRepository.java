@@ -7,5 +7,5 @@ import gatoscopio.back.model.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, String> {
+    boolean existsByNombreIgnoreCase(String nombre);
 }
-

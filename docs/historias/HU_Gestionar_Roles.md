@@ -17,12 +17,17 @@ Como administrador, gestionar roles de usuario para asignar permisos.
 - `PUT /api/usuarios/{id}/roles` → 200 usuario con roles
   - Request: `{ "roles": ["admin","encuestador"] }`
   - Errores: 400 body inválido; 404 usuario/rol no existe
+ - `POST /api/roles` body `{ nombre }` → 201 crea rol (único, case-insensitive)
+ - `DELETE /api/roles/{nombre}` → 204 elimina si no está asignado (409 si está en uso)
+ - `GET /api/roles/{nombre}/usuarios?page=0&size=20` → 200 página de usuarios con ese rol
  - `GET /api/usuarios?page=0&size=20&sort=id,asc` → 200 página de `UserSummary` con roles
 
 ## Validaciones
 - Usuario debe existir.
 - Cada rol debe existir en `roles`.
 - Conjunto sin duplicados; operación idempotente (reemplaza el set).
+- Nombre de rol: `^[a-zA-Z0-9_-]{3,32}$`; único (case-insensitive).
+- No se permite eliminar un rol en uso (devuelve 409 con conteo).
 
 ## Archivos clave
 - `back/src/main/java/gatoscopio/back/model/Role.java`
