@@ -92,4 +92,9 @@ public class EncuestadorController {
         var page = service.listMuestras(pageable);
         return ResponseEntity.ok(page);
     }
+
+    @GetMapping("/tipos-muestra")
+    public ResponseEntity<?> listarTiposMuestra() {
+        return ResponseEntity.ok(service.listTiposMuestra());
+    }
 }   

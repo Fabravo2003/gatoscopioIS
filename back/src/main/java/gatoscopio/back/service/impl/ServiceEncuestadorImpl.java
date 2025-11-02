@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 
 import gatoscopio.back.model.Paciente;
 import gatoscopio.back.model.Muestra;
+import gatoscopio.back.model.TipoMuestra;
 import gatoscopio.back.repository.PacienteRepository;
 import gatoscopio.back.repository.MuestraRepository;
+import gatoscopio.back.repository.TipoMuestraRepository;
 import gatoscopio.back.service.ServiceEncuestador;
 
 @Service
@@ -14,11 +16,13 @@ public class ServiceEncuestadorImpl implements ServiceEncuestador{
 
     private final PacienteRepository pacienteRepository;
     private final MuestraRepository muestraRepository;
+    private final TipoMuestraRepository tipoMuestraRepository;
 
     @Autowired
-    public ServiceEncuestadorImpl(PacienteRepository pacienteRepository, MuestraRepository muestraRepository) {
+    public ServiceEncuestadorImpl(PacienteRepository pacienteRepository, MuestraRepository muestraRepository, TipoMuestraRepository tipoMuestraRepository) {
         this.pacienteRepository = pacienteRepository;
         this.muestraRepository = muestraRepository;
+        this.tipoMuestraRepository = tipoMuestraRepository;
     }
 
     @Override
@@ -98,6 +102,11 @@ public class ServiceEncuestadorImpl implements ServiceEncuestador{
     @Override
     public org.springframework.data.domain.Page<Muestra> listMuestras(org.springframework.data.domain.Pageable pageable) {
         return muestraRepository.findAll(pageable);
+    }
+
+    @Override
+    public java.util.List<TipoMuestra> listTiposMuestra() {
+        return tipoMuestraRepository.findAll();
     }
     
 }
