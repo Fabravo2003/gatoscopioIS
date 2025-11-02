@@ -15,6 +15,7 @@ Listado:
 - HU_Gestionar_Roles.md
 - HU_Crear_Usuario.md
 - HU_Administrar_Usuarios.md
+- HU_Editar_Encuestas.md
 
 ## Comunes
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
