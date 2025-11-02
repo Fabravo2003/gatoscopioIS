@@ -44,5 +44,19 @@ public class ServiceEncuestadorImpl implements ServiceEncuestador{
     public void createEncuesta() {
         // TODO: implementar en su HU
     }
+
+    @Override
+    public Paciente getPaciente(String codigo) {
+        if (isBlank(codigo)) {
+            throw new IllegalArgumentException("codigo es requerido");
+        }
+        return pacienteRepository.findById(codigo)
+                .orElseThrow(() -> new java.util.NoSuchElementException("paciente no encontrado"));
+    }
+
+    @Override
+    public org.springframework.data.domain.Page<Paciente> listPacientes(org.springframework.data.domain.Pageable pageable) {
+        return pacienteRepository.findAll(pageable);
+    }
     
 }
