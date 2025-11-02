@@ -13,3 +13,9 @@ Listado:
 - HU_Registrar_Paciente.md
 - HU_Registrar_Muestra.md
 - HU_Gestionar_Roles.md
+
+## Comunes
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- Formato de error estándar (ControllerAdvice):
+  - `{ "timestamp": "...", "code": "bad_request|conflict|not_found", "message": "..." }`
+- CORS: configurable con `app.cors.allowed-origins` (por defecto `*`).
