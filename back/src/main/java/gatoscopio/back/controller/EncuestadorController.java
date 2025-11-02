@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 
 import gatoscopio.back.model.Paciente;
+import gatoscopio.back.model.Muestra;
 import gatoscopio.back.service.impl.ServiceEncuestadorImpl;
 
 @RestController
@@ -56,5 +57,21 @@ public class EncuestadorController {
     public ResponseEntity<?> listarPacientes(@PageableDefault(size = 20, sort = "codigo") Pageable pageable) {
         var page = service.listPacientes(pageable);
         return ResponseEntity.ok(page);
+    }
+
+    @PostMapping("/muestras")
+    public ResponseEntity<?> crearMuestra(@RequestBody Muestra muestra) {
+        try {
+            service.createMuestra(muestra);
+            return ResponseEntity.status(HttpStatus.CREATED).body(muestra);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(err("conflict", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", "FK inválida o datos inconsistentes"));
+        }
     }
 }   

@@ -4,17 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import gatoscopio.back.model.Paciente;
+import gatoscopio.back.model.Muestra;
 import gatoscopio.back.repository.PacienteRepository;
+import gatoscopio.back.repository.MuestraRepository;
 import gatoscopio.back.service.ServiceEncuestador;
 
 @Service
 public class ServiceEncuestadorImpl implements ServiceEncuestador{
 
     private final PacienteRepository pacienteRepository;
+    private final MuestraRepository muestraRepository;
 
     @Autowired
-    public ServiceEncuestadorImpl(PacienteRepository pacienteRepository) {
+    public ServiceEncuestadorImpl(PacienteRepository pacienteRepository, MuestraRepository muestraRepository) {
         this.pacienteRepository = pacienteRepository;
+        this.muestraRepository = muestraRepository;
     }
 
     @Override
@@ -57,6 +61,29 @@ public class ServiceEncuestadorImpl implements ServiceEncuestador{
     @Override
     public org.springframework.data.domain.Page<Paciente> listPacientes(org.springframework.data.domain.Pageable pageable) {
         return pacienteRepository.findAll(pageable);
+    }
+
+    @Override
+    public void createMuestra(Muestra muestra) {
+        if (muestra == null) {
+            throw new IllegalArgumentException("muestra requerida");
+        }
+        if (isBlank(muestra.getCodigo())) {
+            throw new IllegalArgumentException("codigo es requerido");
+        }
+        if (muestra.getTipoMuestraId() == null) {
+            throw new IllegalArgumentException("tipoMuestraId es requerido");
+        }
+        if (muestraRepository.existsById(muestra.getCodigo())) {
+            throw new IllegalStateException("muestra ya existe");
+        }
+        // Validar paciente si viene
+        if (muestra.getPacienteCodigo() != null && !muestra.getPacienteCodigo().trim().isEmpty()) {
+            if (!pacienteRepository.existsById(muestra.getPacienteCodigo())) {
+                throw new java.util.NoSuchElementException("paciente no existe");
+            }
+        }
+        muestraRepository.save(muestra);
     }
     
 }

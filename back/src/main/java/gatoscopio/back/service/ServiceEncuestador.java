@@ -9,4 +9,6 @@ public interface ServiceEncuestador {
     Paciente getPaciente(String codigo);
     org.springframework.data.domain.Page<Paciente> listPacientes(org.springframework.data.domain.Pageable pageable);
 
+    void createMuestra(gatoscopio.back.model.Muestra muestra);
+
 }
