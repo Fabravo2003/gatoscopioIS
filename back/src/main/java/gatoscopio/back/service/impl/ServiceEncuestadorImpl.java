@@ -3,6 +3,8 @@ package gatoscopio.back.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 import gatoscopio.back.model.Paciente;
 import gatoscopio.back.model.Muestra;
 import gatoscopio.back.model.TipoMuestra;
@@ -78,6 +80,9 @@ public class ServiceEncuestadorImpl implements ServiceEncuestador{
         if (muestra.getTipoMuestraId() == null) {
             throw new IllegalArgumentException("tipoMuestraId es requerido");
         }
+        if (!tipoMuestraRepository.existsById(muestra.getTipoMuestraId())) {
+            throw new java.util.NoSuchElementException("tipoMuestra no existe");
+        }
         if (muestraRepository.existsById(muestra.getCodigo())) {
             throw new IllegalStateException("muestra ya existe");
         }
@@ -86,6 +91,9 @@ public class ServiceEncuestadorImpl implements ServiceEncuestador{
             if (!pacienteRepository.existsById(muestra.getPacienteCodigo())) {
                 throw new java.util.NoSuchElementException("paciente no existe");
             }
+        }
+        if (muestra.getCantidadDonada() != null && muestra.getCantidadDonada().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("cantidadDonada debe ser >= 0");
         }
         muestraRepository.save(muestra);
     }
