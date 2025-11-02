@@ -4,6 +4,7 @@ package gatoscopio.back.service;
 import java.util.List;
 
 import gatoscopio.back.model.Usuario;
+import gatoscopio.back.model.Role;
 
 public interface ServiceAdmin {
    
