@@ -23,4 +23,12 @@ public interface ServiceAdmin {
     // Crear usuario (DTO)
     Usuario createUser(gatoscopio.back.dto.CreateUserRequest req);
 
+    // Actualizar datos básicos (sin contraseña) y eliminar
+    Usuario updateUser(Integer id, gatoscopio.back.dto.UpdateUserRequest req);
+    void deleteUser(Integer id);
+
+    // Cambiar contraseña
+    void changePassword(Integer id, String nuevaContrasena);
+    void changePassword(Integer id, gatoscopio.back.dto.UpdatePasswordRequest req);
+
 }

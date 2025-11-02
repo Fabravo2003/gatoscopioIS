@@ -11,6 +11,8 @@ import gatoscopio.back.repository.RoleRepository;
 import gatoscopio.back.model.Role;
 import gatoscopio.back.dto.UserSummary;
 import gatoscopio.back.dto.CreateUserRequest;
+import gatoscopio.back.dto.UpdateUserRequest;
+import gatoscopio.back.dto.UpdatePasswordRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import gatoscopio.back.service.ServiceAdmin;
@@ -108,6 +110,43 @@ public class ServiceAdminImpl implements ServiceAdmin {
         }
         u.setRoles(nuevo);
         return repository.save(u);
+    }
+
+    @Override
+    public Usuario updateUser(Integer id, UpdateUserRequest req) {
+        if (req == null) throw new IllegalArgumentException("body requerido");
+        Usuario u = repository.findById(id).orElseThrow(() -> new java.util.NoSuchElementException("usuario no existe"));
+        if (req.getNombre() != null && !req.getNombre().isBlank()) {
+            u.setNombre(req.getNombre());
+        }
+        if (req.getCorreo() != null && !req.getCorreo().isBlank()) {
+            if (!req.getCorreo().contains("@")) throw new IllegalArgumentException("correo inválido");
+            if (repository.existsByCorreoIgnoreCaseAndIdNot(req.getCorreo(), id)) throw new IllegalStateException("correo ya existe");
+            u.setCorreo(req.getCorreo());
+        }
+        return repository.save(u);
+    }
+
+    @Override
+    public void deleteUser(Integer id) {
+        if (id == null) throw new IllegalArgumentException("id requerido");
+        if (!repository.existsById(id)) throw new java.util.NoSuchElementException("usuario no existe");
+        repository.deleteById(id);
+    }
+
+    @Override
+    public void changePassword(Integer id, String nuevaContrasena) {
+        if (nuevaContrasena == null || nuevaContrasena.length() < 8) throw new IllegalArgumentException("contrasena debe tener al menos 8 caracteres");
+        Usuario u = repository.findById(id).orElseThrow(() -> new java.util.NoSuchElementException("usuario no existe"));
+        var encoder = new BCryptPasswordEncoder();
+        u.setContrasena(encoder.encode(nuevaContrasena));
+        repository.save(u);
+    }
+
+    @Override
+    public void changePassword(Integer id, UpdatePasswordRequest req) {
+        if (req == null) throw new IllegalArgumentException("body requerido");
+        changePassword(id, req.getContrasena());
     }
 
     @Override

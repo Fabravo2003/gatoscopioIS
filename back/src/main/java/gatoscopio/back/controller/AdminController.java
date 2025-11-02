@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import gatoscopio.back.dto.RolesUpdateRequest;
 import gatoscopio.back.dto.CreateUserRequest;
+import gatoscopio.back.dto.UpdateUserRequest;
+import gatoscopio.back.dto.UpdatePasswordRequest;
 import gatoscopio.back.service.ServiceAdmin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -72,6 +74,52 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(err("conflict", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Actualizar datos básicos del usuario (nombre/correo)")
+    @PutMapping("/usuarios/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest req) {
+        try {
+            var u = service.updateUser(id, req);
+            java.util.Map<String,Object> body = new java.util.LinkedHashMap<>();
+            body.put("id", u.getId());
+            body.put("nombre", u.getNombre());
+            body.put("correo", u.getCorreo());
+            body.put("roles", service.getUserRoles(u.getId()));
+            return ResponseEntity.ok(body);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(err("conflict", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Cambiar contraseña del usuario")
+    @PutMapping("/usuarios/{id}/password")
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody UpdatePasswordRequest req) {
+        try {
+            service.changePassword(id, req);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Eliminar usuario")
+    @DeleteMapping("/usuarios/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+        try {
+            service.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
         } catch (java.util.NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
         }
