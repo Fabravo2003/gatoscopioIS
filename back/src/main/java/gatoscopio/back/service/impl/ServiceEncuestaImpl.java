@@ -132,7 +132,28 @@ public class ServiceEncuestaImpl implements ServiceEncuesta {
         }
         Encuesta e = encuestaRepository.findById(encuestaId)
                 .orElseThrow(() -> new java.util.NoSuchElementException("encuesta no existe"));
-        e.setEstado(estado.trim());
+        String nuevo = canonicalizeEstado(estado);
+        if (nuevo == null) {
+            throw new IllegalArgumentException("estado inválido (permitidos: Incompleto, Completo)");
+        }
+        // Transiciones permitidas: Incompleto <-> Completo (también null -> Incompleto)
+        String actual = e.getEstado();
+        if (actual != null) {
+            String act = canonicalizeEstado(actual);
+            if (act == null) act = actual; // por si hay datos antiguos
+            boolean permitido = (act.equals("Incompleto") && nuevo.equals("Completo"))
+                    || (act.equals("Completo") && nuevo.equals("Incompleto"))
+                    || act.equals(nuevo); // idempotente
+            if (!permitido) {
+                throw new IllegalStateException("transición de estado no permitida: " + act + " -> " + nuevo);
+            }
+        } else {
+            // si no hay estado previo, sólo permitimos establecer a Incompleto
+            if (!"Incompleto".equals(nuevo)) {
+                throw new IllegalStateException("transición de estado no permitida: null -> " + nuevo);
+            }
+        }
+        e.setEstado(nuevo);
         encuestaRepository.save(e);
         if (userId != null) touchAudit(encuestaId, userId);
     }
@@ -148,5 +169,13 @@ public class ServiceEncuestaImpl implements ServiceEncuesta {
     @Transactional(readOnly = true)
     public org.springframework.data.domain.Page<Encuesta> list(String estado, String pacienteCodigo, org.springframework.data.domain.Pageable pageable) {
         return encuestaRepository.findAllFiltered(estado, pacienteCodigo, pageable);
+    }
+
+    private String canonicalizeEstado(String estado) {
+        if (estado == null) return null;
+        String s = estado.trim();
+        if (s.equalsIgnoreCase("Incompleto")) return "Incompleto";
+        if (s.equalsIgnoreCase("Completo")) return "Completo";
+        return null;
     }
 }
