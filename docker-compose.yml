@@ -21,6 +21,10 @@ services:
         - action: rebuild
           path: ./back/uv.lock
 
+    depends_on:
+      db:
+        condition: service_healthy
+
 #  frontend:
 #    build:
 #      context: ./api
@@ -46,16 +50,21 @@ services:
 #          path: ./
 #  
   db:
-    image: docker.io/mysql
+    image: docker.io/postgres:16
     environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: y
-      MYSQL_DATABASE: demo_db
-      MYSQL_USER: demo
-      MYSQL_PASSWORD: demopassword
+      POSTGRES_DB: demo_db
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demopassword
     ports:
-      - 3306:3306
+      - 5432:5432
     volumes:
-      - dbdata:/var/lib/mysql
+      - dbdata:/var/lib/postgresql
+
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=demopassword psql -h localhost -U demo -d demo_db -c 'SELECT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   dbdata:
