@@ -74,4 +74,22 @@ public class EncuestadorController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", "FK inválida o datos inconsistentes"));
         }
     }
+
+    @GetMapping("/muestras/{codigo}")
+    public ResponseEntity<?> obtenerMuestra(@PathVariable String codigo) {
+        try {
+            var m = service.getMuestra(codigo);
+            return ResponseEntity.ok(m);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err("bad_request", e.getMessage()));
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err("not_found", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/muestras")
+    public ResponseEntity<?> listarMuestras(@PageableDefault(size = 20, sort = "codigo") Pageable pageable) {
+        var page = service.listMuestras(pageable);
+        return ResponseEntity.ok(page);
+    }
 }   

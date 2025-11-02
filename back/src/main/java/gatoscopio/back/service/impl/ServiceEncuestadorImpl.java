@@ -85,5 +85,19 @@ public class ServiceEncuestadorImpl implements ServiceEncuestador{
         }
         muestraRepository.save(muestra);
     }
+
+    @Override
+    public Muestra getMuestra(String codigo) {
+        if (isBlank(codigo)) {
+            throw new IllegalArgumentException("codigo es requerido");
+        }
+        return muestraRepository.findById(codigo)
+                .orElseThrow(() -> new java.util.NoSuchElementException("muestra no encontrada"));
+    }
+
+    @Override
+    public org.springframework.data.domain.Page<Muestra> listMuestras(org.springframework.data.domain.Pageable pageable) {
+        return muestraRepository.findAll(pageable);
+    }
     
 }
