@@ -30,9 +30,10 @@ Notas:
 
 ## Validaciones de negocio
 - `codigo`: requerido, no vacío, único.
-- `tipoMuestraId`: requerido.
+- `tipoMuestraId`: requerido y debe existir en `tipos_muestra`.
 - `pacienteCodigo`: si se especifica, debe existir en `pacientes`.
-- `cantidadDonada`: opcional; si se usa, no negativa (validación futura, ver siguientes pasos).
+- `cantidadDonada`: opcional; si se usa, debe ser `>= 0`.
+- `createdAt`: se autocompleta en el backend si no se informa.
 
 ## Integración con la BD
 - Tabla: `muestras(codigo PK, tipo_muestra_id, paciente_codigo, observacion, created_at DEFAULT now(), cantidad_donada)`.
@@ -75,8 +76,6 @@ PGPASSWORD=demopassword psql -h localhost -p 5432 -U demo -d demo_db \
 ```
 
 ## Siguientes pasos (opcional)
-- Validar existencia de `tipo_muestra_id` antes de insertar (crear entidad/repo `TipoMuestra`).
 - Normalizar campo de ubicación (columna específica en `muestras` si se requiere a futuro).
 - Endpoint para listar muestras y ver stock por tipo.
 - Registrar operaciones (`operaciones_muestra`) al momento de ingreso.
-
